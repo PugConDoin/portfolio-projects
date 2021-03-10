@@ -1,76 +1,84 @@
+//* Hey Mark! Thought I'd go over your code and do some refactoring for fun.
+//* Would love to know your thoughts or anything. This is a cool portfolio app!
+
 // variables
-const urlBase = "https://api.punkapi.com/v2/beers?page=";
-const filterABV = document.getElementById("filterABV");
-const filterIBU = document.getElementById("filterIBU");
-const pageText = document.getElementById("pageNumber");
+// const filterABV = document.getElementById("filterABV");
+// const filterIBU = document.getElementById("filterIBU");
 const prevPage = document.getElementById("prevPage");
 const nextPage = document.getElementById("nextPage");
-let optionsABV = "", optionsIBU = "", page = 1;
+// let optionsABV = "", optionsIBU = "", page = 1;
+const urlBase = "https://api.punkapi.com/v2/beers?page=";  
+const optionsState = {abv: "", ibu: ""}  
+
+
+function getPageNumber(){
+    return parseInt(document.getElementById("pageNumber").innerText);
+}
+
+//* For radio button event handling, we can query all forms
+//* of class .filter-form and check for change.
+document.querySelectorAll('.filter-form').forEach(form=>{
+    form.addEventListener("change", _=>{
+        getBeers();
+    });
+});
+
+//* Here I took the text we were assigning to optionsABV
+//* and optionsIBU, and set them to the "value" properties
+//* of the actual radio buttons they correspond to.
+//* This way, we can just get the value of whatever
+//* radio button has been selected when we check for the
+//* "change" event above.
 
 // filters
-filterABV.addEventListener("change", e => {
-   const value = e.target.value; 
-   
-   switch (value) {
-        case "all":
-            optionsABV = "";
-            break
-        case "weak":
-            optionsABV = "&abv_lt=4.6";
-            break
-        case "medium":
-            optionsABV = "&abv_gt=4.5&abv_lt=7.6";
-            break
-        case "strong":
-            optionsABV = "&abv_gt=7.5";
-            break
-   }
-   
-   page = 1;
-   getBeers();
-});
+// filterABV.addEventListener("change", e => {
+//    const value = e.target.value; 
+//    switch (value) {
+//         case "all":
+//             optionsABV = "";
+//             break
+//         case "weak":
+//             optionsABV = "&abv_lt=4.6";
+//             break
+//         case "medium":
+//             optionsABV = "&abv_gt=4.5&abv_lt=7.6";
+//             break
+//         case "strong":
+//             optionsABV = "&abv_gt=7.5";
+//             break
+//    }
+//    page = 1;
+//    getBeers();
+// });
 
-filterIBU.addEventListener("change", e => {
-   const value = e.target.value; 
-   
-   switch (value) {
-        case "all":
-            optionsIBU = "";
-            break
-        case "weak":
-            optionsIBU = "&ibu_lt=35";
-            break
-        case "medium":
-            optionsIBU = "&ibu_gt=34&ibu_lt=75";
-            break
-        case "strong":
-            optionsIBU = "&ibu_gt=74";
-            break
-   }
-   
-   page = 1;
-   getBeers();
-});
+// filterIBU.addEventListener("change", e => {
+// });
 
-async function getBeers() {
-    const url = urlBase + page + optionsABV + optionsIBU;
+async function getBeers(page = 1) {
+    //* set pageNum to 1 by default ^
+
+    //* no need to pass ibu and abv as params. We need them every time
+    //* we call this function anyway. Better to make them local variables.
+    const ibu = document.querySelector('input[name="filter-ibu"]:checked').value;
+    const abv = document.querySelector('input[name="filter-abv"]:checked').value;
+
+    //* no need for the urlbase to be global either. Only using it here.
+    const scopedUrlBase = "https://api.punkapi.com/v2/beers?page=";    
+    const url = scopedUrlBase + page + abv + ibu;
     // fetch
     const beerPromise = await fetch(url);
     const beers = await beerPromise.json();
     
     // pagination
-    pageText.innerText = page;
-    
-    if(page === 1) {
-        prevPage.disabled = true;
-    } else {
-        prevPage.disabled = false;
-    }
-    if(beers.length < 25) {
-        nextPage.disabled = true;
-    } else {
-        nextPage.disabled = false;
-    }
+    //* No need for pagetext to be variable. We only alter
+    //* the innerText of #pageNumber here.
+    document.getElementById("pageNumber").innerText = page;
+
+    //* No need for the if-elses. Better to set
+    //* Better to use ternary operator
+    prevPage.disabled = (page === 1) ? true : false;
+
+    nextPage.disabled = (beers.length < 25) ? true : false;
     
     // render data
     const beersDiv = document.querySelector('.beers');
@@ -106,13 +114,12 @@ async function getBeers() {
 
 // pagination
 prevPage.addEventListener('click', () => {
-    page--;
-    getBeers();
+    getBeers(getPageNumber() - 1);
 });
 nextPage.addEventListener('click', () => {
-    page++;
-    getBeers();
+    getBeers(getPageNumber() + 1);
 });
+
 
 // initial get
 getBeers();
