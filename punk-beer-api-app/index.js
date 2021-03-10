@@ -1,6 +1,9 @@
+//* Hey Mark! Thought I'd go over your code and do some refactoring for fun.
+//* Would love to know your thoughts or anything. This is a cool portfolio app!
+
 // variables
-const filterABV = document.getElementById("filterABV");
-const filterIBU = document.getElementById("filterIBU");
+// const filterABV = document.getElementById("filterABV");
+// const filterIBU = document.getElementById("filterIBU");
 const prevPage = document.getElementById("prevPage");
 const nextPage = document.getElementById("nextPage");
 // let optionsABV = "", optionsIBU = "", page = 1;
